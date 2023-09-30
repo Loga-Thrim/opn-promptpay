@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="checkoutForm">
+      <input type="hidden" name="omiseToken" />
+      <input type="hidden" name="omiseSource" />
+      <button type="submit" id="checkoutButton">Checkout</button>
+    </div>
+    <img src="" id="qrcode" style="width: 200px" alt="" />
+
+    <script type="text/javascript" src="https://cdn.omise.co/omise.js"></script>
+
+    <script>
+      const publicKey = "pkey_test_5x70he7bimtk4ciggur";
+      OmiseCard.configure({
+        publicKey,
+      });
+      Omise.setPublicKey(publicKey);
+
+      var button = document.querySelector("#checkoutButton");
+      var form = document.querySelector("#checkoutForm");
+
+      button.addEventListener("click", (event) => {
+        event.preventDefault();
+        OmiseCard.open({
+          amount: 400000,
+          currency: "THB",
+          defaultPaymentMethod: "promptpay",
+          onCreateTokenSuccess: (nonce) => {
+            submitOmise();
+          },
+        });
+      });
+
+      function submitOmise() {
+        Omise.createSource(
+          "promptpay",
+          {
+            amount: 400000,
+            currency: "THB",
+          },
+          function (statusCode, response) {
+            fetch("http://localhost:3000/generateQR", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                source: response.id,
+                amount: 400000,
+                currency: "THB",
+              }),
+            })
+              .then((res) => res.json())
+              .then((res) => {
+                document.querySelector("#qrcode").src = res.image?.download_uri;
+              });
+          }
+        );
+      }
+    </script>
+  </body>
+</html>
