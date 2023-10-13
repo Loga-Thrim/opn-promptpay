@@ -30,7 +30,7 @@
         OmiseCard.open({
           amount: 400000,
           currency: "THB",
-          defaultPaymentMethod: "promptpay",
+          defaultPaymentMethod: "mobile_banking_kbank",
           onCreateTokenSuccess: (nonce) => {
             submitOmise();
           },
@@ -39,7 +39,7 @@
 
       function submitOmise() {
         Omise.createSource(
-          "promptpay",
+          "mobile_banking_kbank",
           {
             amount: 400000,
             currency: "THB",
